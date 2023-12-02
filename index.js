@@ -3,10 +3,32 @@
 import inquirer from "inquirer";
 import ansiEscapes from "ansi-escapes";
 
-const time = {
+let time = {
   work: 25,
   break: 5,
 };
+
+function workCountdown(num1, num2) {
+  let minutes = Number(num1) - 1;
+  let seconds = 60;
+
+  setInterval(() => {
+    process.stdout.write(
+      ansiEscapes.eraseLines(1) + `${minutes}:${(seconds < 10) ? "0" + (seconds -= 1) : seconds -= 1}`
+    );
+
+    if (minutes === 0 & seconds === 0) {
+      minutes = Number(num2);
+    }
+
+    if (seconds === 0) {
+      minutes -= 1;
+      seconds = 60;
+    }
+
+
+  }, 1000);
+}
 
 async function start() {
   const schedule = await inquirer.prompt({
@@ -21,13 +43,13 @@ async function start() {
   time.work = Number(result[0]);
   time.break = Number(result[1]);
 
-  setInterval(() => {
-    process.stdout.write(ansiEscapes.eraseLines(1) + (time.work -= 1));
-  }, 1000);
+  console.clear();
+
+  console.log('working')
+  workCountdown(time.work, time.break);
 }
 
-function timer() {
-  return (time.work -= 1);
-}
+
+
 
 await start();
