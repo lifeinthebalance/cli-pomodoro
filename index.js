@@ -8,26 +8,49 @@ let time = {
   break: 5,
 };
 
-function workCountdown(num1, num2) {
-  let minutes = Number(num1) - 1;
-  let seconds = 60;
+let cycleHandler = 0; //amount of cycles completed
+let stateHandler = 1; //current sstate
 
-  setInterval(() => {
+function workCountdown(flow, pause) {
+  flow = Number(flow) - 1;
+  pause = Number(pause);
+  let sec = 60;
+  console.log(stateHandler);
+
+  // if ((flow == 0) && (sec == 55)) {
+  //   process.exit(1)
+
+  // }
+
+
+  const stateTimer = setInterval(() => {
+
+    if ((flow === 0) && (sec === 0)) { //changes between states
+      stateHandler = 0;
+      console.log(stateHandler);
+    } else if ((pause === 0) && (sec === 0)) {
+      stateHandler = 1;
+      console.log(stateHandler);
+    }
+
     process.stdout.write(
-      ansiEscapes.eraseLines(1) + `${minutes}:${(seconds < 10) ? "0" + (seconds -= 1) : seconds -= 1}`
+      stateHandler
+        ? ansiEscapes.eraseLines(1) +
+        `${flow}:${sec <= 9 ? "0" + (sec -= 1) : (sec -= 1)}`
+        : ansiEscapes.eraseLines(1) +
+        `${pause}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
     );
-
-    if (minutes === 0 & seconds === 0) {
-      minutes = Number(num2);
-    }
-
-    if (seconds === 0) {
-      minutes -= 1;
-      seconds = 60;
-    }
-
-
   }, 1000);
+
+
+
+  if ((sec === 55) && stateHandler) {
+    flow -= 1;
+    sec = 60;
+  } else {
+    pause -= 1;
+    sec = 60;
+  }
 }
 
 async function start() {
@@ -45,11 +68,7 @@ async function start() {
 
   console.clear();
 
-  console.log('working')
   workCountdown(time.work, time.break);
 }
-
-
-
 
 await start();
