@@ -46,7 +46,7 @@ function workCountdown(flow, pause) {
         : ansiEscapes.eraseLines(1) +
         `${pause}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
     );
-  }, 1000);
+  }, 1000);//daedaed
 
 
 
