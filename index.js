@@ -3,10 +3,10 @@
 import inquirer from "inquirer";
 import ansiEscapes from "ansi-escapes";
 
-// let time = {
-//   work: 25,
-//   break: 5,
-// };
+let time = {
+  work: 25,
+  break: 5,
+};
 
 let cycleHandler = 0; //amount of cycles completed
 let stateHandler = 1; //current sstate
@@ -65,7 +65,7 @@ async function start() {
   const result = schedule.method.split("-");
 
   console.clear();
-  workCountdown(Number(result[0]), Number(result[1]));
+
 
 
 
