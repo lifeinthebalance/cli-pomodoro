@@ -11,8 +11,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
     "ansi-escapes": "^6.2.0",
+    "eslint": "^8.55.0",
     "inquirer": "^9.2.12"
   }
 }

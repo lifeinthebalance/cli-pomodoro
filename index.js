@@ -8,55 +8,45 @@ let time = {
   break: 5,
 };
 
+
 let cycleHandler = 0; //amount of cycles completed
 let stateHandler = 1; //current sstate
 
-function workCountdown(flow, pause) {
-  flow = Number(flow) - 1;
-  pause = Number(pause) - 1;
+function workCountdown(num1, num2) {
+  let work = num1 - 1;
+  let rest = num2 - 1;
   let sec = 60;
-  console.log(stateHandler);
-
-  // if ((flow == 0) && (sec == 55)) {
-  //   process.exit(1)
-
-  // }
-
 
   setInterval(() => {
 
-    if (((flow === 0) && (sec === 55)) && stateHandler) { //changes between states
-      stateHandler = 0;
-      console.log(stateHandler);
+
+    if (stateHandler) {
+      process.stdout.write(ansiEscapes.eraseLines(1) + `${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+
+      if (work === 0 && sec === 0) {
+        sec = 60;
+        stateHandler = 0;
+      } else if (sec === 0) {
+        work -= 1;
+        sec = 60;
+      }
     }
 
-    if (((pause === 0) && (sec === 55)) && !stateHandler) {
-      stateHandler = 1;
-      console.log(stateHandler);
+    if (!stateHandler) {
+      process.stdout.write(ansiEscapes.eraseLines(1) + `${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+
+      if (rest === 0 && sec === 0) {
+        sec = 60;
+        stateHandler = 1;
+        cycleHandler += 1;
+      } else if (sec === 0) {
+        rest -= 1;
+        sec = 60;
+      }
     }
 
-    if (sec === 55) {
-      sec = 60;
-    }
-
-    process.stdout.write(
-      stateHandler
-        ? ansiEscapes.eraseLines(1) +
-        `${flow}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
-        : ansiEscapes.eraseLines(1) +
-        `${pause}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
-    );
   }, 1000);
 
-
-
-  // if ((sec === 55) && stateHandler) {
-  //   flow -= 1;
-  //   sec = 60;
-  // } else {
-  //   pause -= 1;
-  //   sec = 60;
-  // }
 }
 
 async function start() {
@@ -69,14 +59,9 @@ async function start() {
     },
   });
   const result = schedule.method.split("-");
-  time.work = Number(result[0]);
-  time.break = Number(result[1]);
   console.clear();
 
-
-
-
-  workCountdown(time.work, time.break);
+  workCountdown(Number(result[0]), Number(result[1]));
 }
 
 
