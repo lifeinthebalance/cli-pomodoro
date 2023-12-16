@@ -62,28 +62,30 @@ function workCountdown(num1, num2) {
       }
     }
 
-    if (sec === 55) {
-      sec = 60;
+    if (!stateHandler) {
+      process.stdout.write(ansiEscapes.eraseLines(1) + `${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+
+      if (sec === 0) {
+        rest -= 1;
+        sec = 60;
+      }
     }
 
-    process.stdout.write(
-      stateHandler
-        ? ansiEscapes.eraseLines(1) +
-        `${flow}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
-        : ansiEscapes.eraseLines(1) +
-        `${pause}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
-    );
+    if ((work === 0 && sec === 55)) {
+      clearInterval(timer);
+      console.clear();
+      inquirer.prompt({
+        type: 'input',
+        name: 'period',
+        message: '>'
+      }).then(({ period }) => {
+        if (period === 'break') {
+          workCountdown(workDuration, breakDuration)
+        }
+      })
+    }
+
   }, 1000);
-
-
-
-  // if ((sec === 55) && stateHandler) {
-  //   flow -= 1;
-  //   sec = 60;
-  // } else {
-  //   pause -= 1;
-  //   sec = 60;
-  // }
 }
 
 // async function start() {
@@ -96,17 +98,11 @@ function workCountdown(num1, num2) {
 //     },
 //   });
 //   const result = schedule.method.split("-");
-//   time.work = Number(result[0]);
-//   time.break = Number(result[1]);
 //   console.clear();
 
-
-
-
-//   workCountdown(time.work, time.break);
+//   workCountdown(Number(result[0]), Number(result[1]));
 // }
 
+// await start();
 
 
-
-await start();
