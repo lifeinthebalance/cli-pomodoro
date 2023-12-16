@@ -3,36 +3,63 @@
 import inquirer from "inquirer";
 import ansiEscapes from "ansi-escapes";
 
-let time = {
-  work: 25,
-  break: 5,
-};
+let workDuration = 0;
+let breakDuration = 0;
 
-let cycleHandler = 0; //amount of cycles completed
-let stateHandler = 1; //current sstate
+async function startPomodoro() {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'work',
+      message: 'work tiem?',
+      default: '25',
+    },
+    {
+      type: 'input',
+      name: 'break',
+      message: 'break time?',
+      default: '5',
+    },
+  ]).then((answers) => {
+    console.clear();
+    inquirer.prompt({
+      type: 'input',
+      name: 'start',
+      message: '>',
+      default: 'type "start" when ready'
+    }).then(({ start }) => {
+      if (start == 'start') {
+        console.clear();
+        workDuration = Number(answers.work);
+        breakDuration = Number(answers.break);
+        workCountdown(workDuration, breakDuration);
+      }
+    })
 
-function workCountdown(flow, pause) {
-  flow = Number(flow) - 1;
-  pause = Number(pause) - 1;
+  })
+
+
+}
+
+await startPomodoro();
+
+function workCountdown(num1, num2) {
+  let work = num1 - 1;
+  let rest = num2 - 1;
   let sec = 60;
-  console.log(stateHandler);
+  let stateHandler = 1; //current sstate
+  let cycleHandler = 0; //amount of cycles completed
 
-  // if ((flow == 0) && (sec == 55)) {
-  //   process.exit(1)
-
-  // }
+  const timer = setInterval(() => {
 
 
-  setInterval(() => {
+    if (stateHandler) {
+      process.stdout.write(ansiEscapes.eraseLines(1) + `${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
-    if (((flow === 0) && (sec === 55)) && stateHandler) { //changes between states
-      stateHandler = 0;
-      console.log(stateHandler);
-    }
-
-    if (((pause === 0) && (sec === 55)) && !stateHandler) {
-      stateHandler = 1;
-      console.log(stateHandler);
+      if (sec === 0) {
+        work -= 1;
+        sec = 60;
+      }
     }
 
     if (sec === 55) {
@@ -46,7 +73,7 @@ function workCountdown(flow, pause) {
         : ansiEscapes.eraseLines(1) +
         `${pause}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
     );
-  }, 1000);//daedaed
+  }, 1000);
 
 
 
@@ -59,25 +86,25 @@ function workCountdown(flow, pause) {
   // }
 }
 
-async function start() {
-  const schedule = await inquirer.prompt({
-    name: "method",
-    type: "input",
-    message: "work time?",
-    default() {
-      return "25-5";
-    },
-  });
-  const result = schedule.method.split("-");
-  time.work = Number(result[0]);
-  time.break = Number(result[1]);
-  console.clear();
+// async function start() {
+//   const schedule = await inquirer.prompt({
+//     name: "method",
+//     type: "input",
+//     message: "work time?",
+//     default() {
+//       return "25-5";
+//     },
+//   });
+//   const result = schedule.method.split("-");
+//   time.work = Number(result[0]);
+//   time.break = Number(result[1]);
+//   console.clear();
 
 
 
 
-  workCountdown(time.work, time.break);
-}
+//   workCountdown(time.work, time.break);
+// }
 
 
 
