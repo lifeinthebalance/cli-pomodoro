@@ -3,88 +3,49 @@
 import inquirer from "inquirer";
 import ansiEscapes from "ansi-escapes";
 
-let workDuration = 0;
-let breakDuration = 0;
+let time = {
+  work: 25,
+  break: 5,
+};
 
-async function startPomodoro() {
-  inquirer.prompt([
-    {
-      type: 'input',
-      name: 'work',
-      message: 'work tiem?',
-      default: '25',
-    },
-    {
-      type: 'input',
-      name: 'break',
-      message: 'break time?',
-      default: '5',
-    },
-  ]).then((answers) => {
-    console.clear();
-    inquirer.prompt({
-      type: 'input',
-      name: 'start',
-      message: '>',
-      default: 'type "start" when ready'
-    }).then(({ start }) => {
-      if (start == 'start') {
-        console.clear();
-        workDuration = Number(answers.work);
-        breakDuration = Number(answers.break);
-        workCountdown(workDuration, breakDuration);
-      }
-    })
-
-  })
-
-
-}
-
-await startPomodoro();
+let cycleHandler = 0; //amount of cycles completed
+let stateHandler = 1; //current sstate
 
 function workCountdown(num1, num2) {
   let work = num1 - 1;
   let rest = num2 - 1;
   let sec = 60;
-  let stateHandler = 1; //current sstate
-  let cycleHandler = 0; //amount of cycles completed
+  console.log(stateHandler);
 
-  const timer = setInterval(() => {
+  // if ((flow == 0) && (sec == 55)) {
+  //   process.exit(1)
+
+  // }
 
 
-    if (stateHandler) {
-      process.stdout.write(ansiEscapes.eraseLines(1) + `${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+  setInterval(() => {
 
-      if (sec === 0) {
-        work -= 1;
-        sec = 60;
-      }
+    if (((flow === 0) && (sec === 55)) && stateHandler) { //changes between states
+      stateHandler = 0;
+      console.log(stateHandler);
     }
 
-    if (!stateHandler) {
-      process.stdout.write(ansiEscapes.eraseLines(1) + `${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
-
-      if (sec === 0) {
-        rest -= 1;
-        sec = 60;
-      }
+    if (((pause === 0) && (sec === 55)) && !stateHandler) {
+      stateHandler = 1;
+      console.log(stateHandler);
     }
 
-    if ((work === 0 && sec === 55)) {
-      clearInterval(timer);
-      console.clear();
-      inquirer.prompt({
-        type: 'input',
-        name: 'period',
-        message: '>'
-      }).then(({ period }) => {
-        if (period === 'break') {
-          workCountdown(workDuration, breakDuration)
-        }
-      })
+    if (sec === 55) {
+      sec = 60;
     }
 
+    process.stdout.write(
+      stateHandler
+        ? ansiEscapes.eraseLines(1) +
+        `${flow}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
+        : ansiEscapes.eraseLines(1) +
+        `${pause}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`
+    );
   }, 1000);
 }
 
