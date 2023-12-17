@@ -43,11 +43,12 @@ async function startPomodoro() {
 
 await startPomodoro();
 
+let stateHandler = 1; //current sstate
+
 function workCountdown(num1, num2) {
   let work = num1 - 1;
   let rest = num2 - 1;
   let sec = 60;
-  let stateHandler = 1; //current sstate
   let cycleHandler = 0; //amount of cycles completed
 
   const timer = setInterval(() => {
@@ -80,8 +81,11 @@ function workCountdown(num1, num2) {
         message: '>'
       }).then(({ period }) => {
         if (period === 'break') {
-          workCountdown(workDuration, breakDuration)
+          stateHandler = 0;
+        } else if (period === 'work') {
+          stateHandler = 1;
         }
+        workCountdown(workDuration, breakDuration);
       })
     }
 
