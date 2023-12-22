@@ -44,6 +44,7 @@ async function startPomodoro() {
 await startPomodoro();
 
 let stateHandler = 1; //current sstate
+let state = 0;
 
 function workCountdown(num1, num2) {
   let work = num1 - 1;
