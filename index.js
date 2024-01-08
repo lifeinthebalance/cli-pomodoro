@@ -2,6 +2,7 @@
 
 import inquirer from "inquirer";
 import ansiEscapes from "ansi-escapes";
+import notifier from 'node-notifier';
 
 let workDuration = 0;
 let breakDuration = 0;
@@ -11,13 +12,13 @@ async function startPomodoro() {
     {
       type: 'input',
       name: 'work',
-      message: 'work tiem?',
+      message: 'Enter work duration',
       default: '25',
     },
     {
       type: 'input',
       name: 'break',
-      message: 'break time?',
+      message: 'Enter break duration',
       default: '5',
     },
   ]).then((answers) => {
@@ -43,20 +44,20 @@ async function startPomodoro() {
 
 await startPomodoro();
 
-let stateHandler = 1; //current sstate
-let state = 0;
+let state = 1; //current sstate
+let cycles = 0; //amount of cycles completed
+
 
 function workCountdown(num1, num2) {
   let work = num1 - 1;
   let rest = num2 - 1;
   let sec = 60;
-  let cycleHandler = 0; //amount of cycles completed
 
   const timer = setInterval(() => {
 
 
-    if (stateHandler) {
-      process.stdout.write(ansiEscapes.eraseLines(1) + `${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+    if (state) {
+      process.stdout.write(ansiEscapes.eraseLines(1) + `flow state ${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
       if (sec === 0) {
         work -= 1;
@@ -64,8 +65,8 @@ function workCountdown(num1, num2) {
       }
     }
 
-    if (!stateHandler) {
-      process.stdout.write(ansiEscapes.eraseLines(1) + `${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+    if (!state) {
+      process.stdout.write(ansiEscapes.eraseLines(1) + `taking a break ${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
       if (sec === 0) {
         rest -= 1;
@@ -73,20 +74,29 @@ function workCountdown(num1, num2) {
       }
     }
 
-    if ((work === 0 && sec === 55)) {
+    if ((work === 0 && sec === 55 && state === 1)
+      || (rest === 0 && sec === 55 && state === 0)) {
       clearInterval(timer);
       console.clear();
+      notifier.notify({
+        title: 'Pomodoro',
+        message: "Time's up!",
+
+      })
       inquirer.prompt({
         type: 'input',
         name: 'period',
         message: '>'
       }).then(({ period }) => {
         if (period === 'break') {
-          stateHandler = 0;
+          state = 0;
+          workCountdown(workDuration, breakDuration);
         } else if (period === 'work') {
-          stateHandler = 1;
+          state = 1;
+          workCountdown(workDuration, breakDuration);
+        } else {
+          console.log('kekw')
         }
-        workCountdown(workDuration, breakDuration);
       })
     }
 
