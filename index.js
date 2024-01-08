@@ -56,16 +56,14 @@ function workCountdown(num1, num2) {
   const timer = setInterval(() => {
 
 
-    if (state) {
-      process.stdout.write(ansiEscapes.eraseLines(1) + `flow state ${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+    if ((work >= 0) && (sec > 0)) {
+      process.stdout.write(ansiEscapes.eraseLines(2) + `flow state \r\n${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
       if (sec === 0) {
         work -= 1;
         sec = 60;
       }
-    }
-
-    if (!state) {
+    } else {
       process.stdout.write(ansiEscapes.eraseLines(1) + `taking a break ${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
       if (sec === 0) {
@@ -74,50 +72,38 @@ function workCountdown(num1, num2) {
       }
     }
 
-    if ((work === 0 && sec === 55 && state === 1)
-      || (rest === 0 && sec === 55 && state === 0)) {
-      clearInterval(timer);
-      console.clear();
-      notifier.notify({
-        title: 'Pomodoro',
-        message: "Time's up!",
 
-      })
-      inquirer.prompt({
-        type: 'input',
-        name: 'period',
-        message: '>'
-      }).then(({ period }) => {
-        if (period === 'break') {
-          state = 0;
-          workCountdown(workDuration, breakDuration);
-        } else if (period === 'work') {
-          state = 1;
-          workCountdown(workDuration, breakDuration);
-        } else {
-          console.log('kekw')
-        }
-      })
-    }
+
+    // if ((work === 0 && sec === 55 && state === 1)
+    //   || (rest === 0 && sec === 55 && state === 0)) {
+    //   clearInterval(timer);
+    //   console.clear();
+    //   notifier.notify({
+    //     title: 'Pomodoro',
+    //     message: "Time's up!",
+
+    //   })
+    //   inquirer.prompt({
+    //     type: 'input',
+    //     name: 'period',
+    //     message: '>',
+    //     default: 'work / break'
+    //   }).then(({ period }) => {
+    //     if (period === 'break') {
+    //       state = 0;
+    //       workCountdown(workDuration, breakDuration);
+    //     } else if (period === 'work') {
+    //       state = 1;
+    //       workCountdown(workDuration, breakDuration);
+    //     } else {
+    //       console.log('kekw');
+    //       process.stdout.write(ansiEscapes.eraseLines(1));
+    //     }
+    //   })
+    // }
 
   }, 1000);
 }
 
-// async function start() {
-//   const schedule = await inquirer.prompt({
-//     name: "method",
-//     type: "input",
-//     message: "work time?",
-//     default() {
-//       return "25-5";
-//     },
-//   });
-//   const result = schedule.method.split("-");
-//   console.clear();
-
-//   workCountdown(Number(result[0]), Number(result[1]));
-// }
-
-// await start();
 
 
