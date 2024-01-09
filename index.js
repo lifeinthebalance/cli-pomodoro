@@ -25,11 +25,11 @@ async function startPomodoro() {
     console.clear();
     inquirer.prompt({
       type: 'input',
-      name: 'start',
+      name: 'starter',
       message: '>',
       default: 'type "start" when ready'
-    }).then(({ start }) => {
-      if (start == 'start') {
+    }).then(({ starter }) => {
+      if (starter === 'start') {
         console.clear();
         workDuration = Number(answers.work);
         breakDuration = Number(answers.break);
@@ -57,11 +57,18 @@ function workCountdown(num1, num2) {
 
 
     if ((work >= 0) && (sec > 0)) {
-      process.stdout.write(ansiEscapes.eraseLines(2) + `flow state \r\n${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
+      process.stdout.write(ansiEscapes.eraseLines(1) + `flow state ${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
       if (sec === 0) {
         work -= 1;
         sec = 60;
+      }
+
+      if (work === 0 && sec === 0) {
+        notifier.notify({
+          title: 'Pomodoro',
+          message: 'Take a break!'
+        })
       }
     } else {
       process.stdout.write(ansiEscapes.eraseLines(1) + `taking a break ${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
@@ -72,6 +79,29 @@ function workCountdown(num1, num2) {
       }
     }
 
+
+
+
+
+    if (rest === 0 && sec === 0) {
+      clearInterval(timer);
+      console.clear();
+      notifier.notify({
+        title: 'Pomodoro',
+        message: 'Time to work!'
+      });
+      inquirer.prompt({
+        type: 'input',
+        name: 'start',
+        message: '>',
+        default: 'type "start" when ready',
+      }).then(({ start }) => {
+        if (start == 'start') {
+          console.clear();
+          workCountdown(workDuration, breakDuration);
+        }
+      })
+    }
 
 
     // if ((work === 0 && sec === 55 && state === 1)
