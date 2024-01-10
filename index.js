@@ -33,7 +33,7 @@ async function startPomodoro() {
         console.clear();
         workDuration = Number(answers.work);
         breakDuration = Number(answers.break);
-        workCountdown(workDuration, breakDuration);
+        pomodoroTimer(workDuration, breakDuration);
       }
     })
 
@@ -42,53 +42,55 @@ async function startPomodoro() {
 
 }
 
-await startPomodoro();
 
-let state = 1; //current sstate
 let cycles = 0; //amount of cycles completed
 
-
-function workCountdown(num1, num2) {
+const pomodoroTimer = (num1, num2) => {
   let work = num1 - 1;
-  let rest = num2 - 1;
+  let rest = ((cycles > 0) && (cycles % 4 === 0)) ? num2 - 1 : (num2 - 1) * 4;
   let sec = 60;
+  let state = 1; //current sstate
+
 
   const timer = setInterval(() => {
 
 
-    if ((work >= 0) && (sec > 0)) {
+    if (state) {
       process.stdout.write(ansiEscapes.eraseLines(1) + `flow state ${work}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
-      if (sec === 0) {
+      if ((sec === 0) && (work > 0)) {
         work -= 1;
         sec = 60;
       }
 
-      if (work === 0 && sec === 0) {
+      if ((work === 0) && (sec === 55)) {
+
+        cycles += 1;
+        state = 0;
+        sec = 60;
         notifier.notify({
           title: 'Pomodoro',
           message: 'Take a break!'
-        })
+        });
       }
+
+
     } else {
       process.stdout.write(ansiEscapes.eraseLines(1) + `taking a break ${rest}:${sec <= 10 ? "0" + (sec -= 1) : (sec -= 1)}`);
 
-      if (sec === 0) {
+      if ((sec === 0) && (rest > 0)) {
         rest -= 1;
         sec = 60;
       }
     }
 
 
-
-
-
-    if (rest === 0 && sec === 0) {
+    if ((sec === 55) && !state) {
       clearInterval(timer);
       console.clear();
       notifier.notify({
         title: 'Pomodoro',
-        message: 'Time to work!'
+        message: 'Get ready for work!'
       });
       inquirer.prompt({
         type: 'input',
@@ -98,42 +100,14 @@ function workCountdown(num1, num2) {
       }).then(({ start }) => {
         if (start == 'start') {
           console.clear();
-          workCountdown(workDuration, breakDuration);
+          pomodoroTimer(workDuration, breakDuration);
         }
       })
     }
-
-
-    // if ((work === 0 && sec === 55 && state === 1)
-    //   || (rest === 0 && sec === 55 && state === 0)) {
-    //   clearInterval(timer);
-    //   console.clear();
-    //   notifier.notify({
-    //     title: 'Pomodoro',
-    //     message: "Time's up!",
-
-    //   })
-    //   inquirer.prompt({
-    //     type: 'input',
-    //     name: 'period',
-    //     message: '>',
-    //     default: 'work / break'
-    //   }).then(({ period }) => {
-    //     if (period === 'break') {
-    //       state = 0;
-    //       workCountdown(workDuration, breakDuration);
-    //     } else if (period === 'work') {
-    //       state = 1;
-    //       workCountdown(workDuration, breakDuration);
-    //     } else {
-    //       console.log('kekw');
-    //       process.stdout.write(ansiEscapes.eraseLines(1));
-    //     }
-    //   })
-    // }
 
   }, 1000);
 }
 
 
+await startPomodoro();
 
