@@ -2,58 +2,58 @@
 
 import inquirer from "inquirer";
 import notifier from 'node-notifier';
-import ora from 'ora';
+import cliProgress from 'cli-progress';
+import chalk from "chalk";
 // import ansiEscapes from "ansi-escapes";
 
 let workDuration = 0;
 let breakDuration = 0;
 
-async function startPomodoro() {
+function startPomodoro() {
   inquirer.prompt([
     {
       type: 'input',
       name: 'work',
-      message: 'Enter work duration',
+      message: 'Enter work duration:',
       default: '25',
       validate(answer) {
-        if (answer.match('[0-9]+')) {
-          return true;
+        if (!answer.match('[0-9]+')) {
+          return 'Must be a number';
         }
 
-        return 'Must be a number'
+        return true;
       },
     },
     {
       type: 'input',
       name: 'break',
-      message: 'Enter break duration',
+      message: 'Enter break duration:',
       default: '5',
       validate(answer) {
-        if (answer.match('[0-9]+')) {
-          return true;
+        if (!answer.match('[0-9]+')) {
+          return 'Must be a number';
         }
 
-        return 'Must be a number'
+        return true;
       },
     },
   ]).then((answers) => {
+    workDuration = Number(answers.work);
+    breakDuration = Number(answers.break);
     console.clear();
     inquirer.prompt({
       type: 'input',
       name: 'starter',
       message: '>',
-      default: 'type "start" when ready',
-      validate(answer) {
-        if (answer !== 'start') {
-          return 'enter "start" to start the clock'
+      validate(input) {
+        if (input !== 'start') {
+          return 'type "start" when ready';
         }
 
         return true;
       }
-    }).then(({ starter }) => {
+    }).then(() => {
       console.clear();
-      workDuration = Number(answers.work);
-      breakDuration = Number(answers.break);
       pomodoroTimer(workDuration, breakDuration);
     })
   })
@@ -80,29 +80,47 @@ function pomodoroTimer(workD, breakD) {
   // let endMinutes = new Date(timestamp).getMinutes();
 
 
-  const workOra = ora(`flow state until ${workEndHours}:${(workEndMinutes < 10) ? '0' + workEndMinutes : workEndMinutes}`).start();
+  process.stdout.write(`flow state until ${workEndHours}:${(workEndMinutes < 10) ? '0' + workEndMinutes : workEndMinutes} \n \n`);
+  // let workOra = ora(`flow state until ${workEndHours}:${(workEndMinutes < 10) ? '0' + workEndMinutes : workEndMinutes} \n`).start();
+  function progressBar(num) {
+    const bar = new cliProgress.SingleBar({
+      format: chalk.bgRed('{bar}') + ' {percentage}%',
+    }, cliProgress.Presets.shades_grey);
+    bar.start(num, 0);
+    const int = setInterval(() => {
+      bar.increment(1000);
+    }, 1000);
+  };
+  progressBar(workD * 60000);
+
 
   setTimeout(() => {
-    workOra.stop();
+    // workOra.stop();
     cycles += 1;
     notifier.notify({
       title: 'Pomodoro',
       message: 'Take a break!',
-      icon: './icon.png',
+      icon: './icon_70.png',
     });
-    let breakOra = ora(`taking a break until ${breakEndHours}:${(breakEndMinutes < 10) ? '0' + breakEndMinutes : breakEndMinutes}`).start();
+    // let breakOra = ora(`taking a break until ${breakEndHours}:${(breakEndMinutes < 10) ? '0' + breakEndMinutes : breakEndMinutes}`).start();
     setTimeout(() => {
-      breakOra.stop();
+      // breakOra.stop();
       notifier.notify({
         title: 'Pomodoro',
         message: 'Get ready for work!',
-        icon: './icon.png',
+        icon: './icon_70.png',
       });
       inquirer.prompt({
         type: 'input',
         name: 'starter',
         message: '>',
-        default: 'type "start" when ready',
+        validate(input) {
+          if (input !== 'start') {
+            return 'type "start" when ready';
+          }
+
+          return true;
+        }
       }).then(({ starter }) => {
         if (starter === 'start') {
           console.clear();
@@ -135,7 +153,7 @@ function pomodoroTimer(workD, breakD) {
   // notifier.notify({
   //   title: 'Pomodoro',
   //   message: 'Take a break!',
-  //   icon: './icon.png',
+  //   icon: './icon.webp',
   // });
   //     }
 
@@ -156,7 +174,7 @@ function pomodoroTimer(workD, breakD) {
   //   notifier.notify({
   //     title: 'Pomodoro',
   //     message: 'Get ready for work!',
-  //     icon: './icon.png',
+  //     icon: './icon.webp',
   //   });
   //   inquirer.prompt({
   //     type: 'input',
@@ -175,5 +193,5 @@ function pomodoroTimer(workD, breakD) {
 }
 
 
-await startPomodoro();
+startPomodoro();
 
