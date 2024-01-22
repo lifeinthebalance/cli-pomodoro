@@ -136,8 +136,6 @@ function pomodoroTimer(workD, breakD) {
       });
     }, breakD * 60000 + 1000);
   }, workD * 60000);
-  // eeffqwe
-  //qweqwe
 }
 
 
