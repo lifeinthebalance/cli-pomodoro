@@ -58,7 +58,7 @@ function startPomodoro() {
     })
   })
 }
-
+// coomit qwe
 
 let cycles = 0; //amount of cycles completed
 
